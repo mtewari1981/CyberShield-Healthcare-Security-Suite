@@ -3,435 +3,732 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CyberShield Email Security Filter</title>
+<title>CyberShield Healthcare Security Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f6fa;color:#1a1a2e;line-height:1.6}
-  .header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:1.5rem 2rem;display:flex;align-items:center;gap:14px}
-  .header h1{font-size:1.3rem;font-weight:700}
-  .header p{font-size:0.8rem;opacity:0.7;margin-top:2px}
-  .badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:2px 10px;font-size:0.72rem;margin-top:6px;margin-right:4px}
-  .container{max-width:960px;margin:0 auto;padding:1.5rem}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
-  .card{background:#fff;border-radius:12px;border:1px solid #e8eaf0;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-  h2{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:0.75rem;display:flex;align-items:center;gap:8px}
-  label{display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;margin-top:12px}
-  label:first-of-type{margin-top:0}
-  input,textarea{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:0.85rem;font-family:inherit;color:#1a1a2e;background:#fff}
-  input:focus,textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
-  textarea{resize:vertical;min-height:100px}
-  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.2s;width:100%;justify-content:center;margin-top:12px}
-  .btn-primary{background:#2563eb;color:#fff}
-  .btn-primary:hover{background:#1d4ed8}
-  .result-card{border-radius:10px;padding:1rem 1.25rem;margin-top:1rem}
-  .result-safe{background:#f0fdf4;border:1.5px solid #16a34a}
-  .result-danger{background:#fef2f2;border:1.5px solid #dc2626}
-  .result-warning{background:#fffbeb;border:1.5px solid #d97706}
-  .result-title{font-size:1rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-  .result-safe .result-title{color:#15803d}
-  .result-danger .result-title{color:#b91c1c}
-  .result-warning .result-title{color:#b45309}
-  .finding{font-size:0.8rem;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;gap:8px;align-items:flex-start}
-  .finding:last-child{border-bottom:none}
-  .finding-icon{flex-shrink:0;margin-top:1px}
-  .score-bar{height:8px;border-radius:99px;background:#e5e7eb;margin:8px 0;overflow:hidden}
-  .score-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
-  .score-safe{background:#16a34a}
-  .score-warn{background:#d97706}
-  .score-danger{background:#dc2626}
-  .tag{display:inline-block;font-size:0.72rem;padding:2px 8px;border-radius:99px;font-weight:500;margin:2px}
-  .tag-red{background:#fee2e2;color:#b91c1c}
-  .tag-amber{background:#fef3c7;color:#92400e}
-  .tag-green{background:#dcfce7;color:#166534}
-  .tag-blue{background:#dbeafe;color:#1e40af}
-  .metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
-  .metric-sm{background:#f8fafc;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0}
-  .metric-sm-num{font-size:1.4rem;font-weight:700;color:#2563eb}
-  .metric-sm-num.red{color:#dc2626}
-  .metric-sm-num.green{color:#16a34a}
-  .metric-sm-label{font-size:0.72rem;color:#6b7280;margin-top:2px}
-  .sample-emails{margin-top:0.75rem}
-  .sample-btn{display:block;width:100%;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:6px;cursor:pointer;font-size:0.8rem;color:#374151;font-family:inherit;transition:background 0.15s}
-  .sample-btn:hover{background:#eff6ff;border-color:#bfdbfe}
-  .sample-label{font-size:0.72rem;color:#6b7280;display:block;margin-bottom:3px}
-  .full-width{grid-column:1/-1}
-  .history-item{border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-  .history-verdict{width:60px;font-size:0.72rem;font-weight:700;text-align:center;padding:3px 6px;border-radius:4px;flex-shrink:0}
-  .verdict-safe{background:#dcfce7;color:#166534}
-  .verdict-phish{background:#fee2e2;color:#b91c1c}
-  .verdict-suspicious{background:#fef3c7;color:#92400e}
-  .history-info{flex:1;min-width:0}
-  .history-from{font-size:0.82rem;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .history-subject{font-size:0.75rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .history-score{font-size:0.75rem;font-weight:600;color:#374151;flex-shrink:0}
-  @media(max-width:700px){.grid{grid-template-columns:1fr}}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;
+  --bg2:#0f1628;
+  --bg3:#151d35;
+  --bg4:#1a2340;
+  --border:#1e2d50;
+  --border2:#2a3f6e;
+  --teal:#00c9a7;
+  --teal-dim:#00a589;
+  --teal-bg:rgba(0,201,167,0.08);
+  --teal-border:rgba(0,201,167,0.25);
+  --red:#ff4757;
+  --red-bg:rgba(255,71,87,0.08);
+  --red-border:rgba(255,71,87,0.3);
+  --amber:#ffa502;
+  --amber-bg:rgba(255,165,2,0.08);
+  --amber-border:rgba(255,165,2,0.3);
+  --blue:#4a9eff;
+  --blue-bg:rgba(74,158,255,0.08);
+  --blue-border:rgba(74,158,255,0.25);
+  --text:#e8edf8;
+  --text2:#8b98b8;
+  --text3:#5a6580;
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* HEADER */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-icon{width:44px;height:44px;background:var(--teal-bg);border:1px solid var(--teal-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo-title{font-family:'IBM Plex Mono',monospace;font-size:1.05rem;font-weight:600;color:var(--teal);letter-spacing:-0.3px}
+.logo-sub{font-size:0.75rem;color:var(--text2);margin-top:1px}
+.header-badges{display:flex;gap:8px;flex-wrap:wrap}
+.hbadge{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:4px 10px;border-radius:4px;border:1px solid var(--border2);color:var(--text2);background:var(--bg3)}
+.hbadge.live{border-color:var(--teal-border);color:var(--teal);background:var(--teal-bg)}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;padding:14px 20px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);transition:all 0.2s;display:flex;align-items:center;gap:8px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:1.5rem 2rem}
+.panel{display:none}.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:768px){.grid2{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;color:var(--teal);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+@media(max-width:600px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.metric-num{font-family:'IBM Plex Mono',monospace;font-size:1.6rem;font-weight:600}
+.metric-num.teal{color:var(--teal)}
+.metric-num.red{color:var(--red)}
+.metric-num.amber{color:var(--amber)}
+.metric-num.blue{color:var(--blue)}
+.metric-label{font-size:0.7rem;color:var(--text2);margin-top:3px}
+
+/* FORM */
+label{display:block;font-size:0.75rem;font-weight:500;color:var(--text2);margin-bottom:5px;margin-top:14px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.4px}
+label:first-of-type{margin-top:0}
+input,textarea,select{width:100%;padding:9px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;font-size:0.85rem;font-family:'IBM Plex Sans',sans-serif;color:var(--text);transition:border-color 0.2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,167,0.1)}
+textarea{resize:vertical;min-height:110px}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:7px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;font-family:'IBM Plex Sans',sans-serif;transition:all 0.2s;width:100%;justify-content:center;margin-top:14px}
+.btn-primary{background:var(--teal);color:#0a0f1e}
+.btn-primary:hover{background:var(--teal-dim)}
+.btn-secondary{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+
+/* SAMPLE BTNS */
+.sample-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.sample-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.75rem;color:var(--text2);font-family:'IBM Plex Sans',sans-serif;text-align:left;transition:all 0.15s}
+.sample-btn:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-bg)}
+.sample-btn .sl{font-size:0.68rem;color:var(--text3);display:block;margin-bottom:2px;font-family:'IBM Plex Mono',monospace}
+
+/* RESULTS */
+.result-banner{border-radius:8px;padding:14px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:12px}
+.result-banner.danger{background:var(--red-bg);border:1px solid var(--red-border)}
+.result-banner.warning{background:var(--amber-bg);border:1px solid var(--amber-border)}
+.result-banner.safe{background:var(--teal-bg);border:1px solid var(--teal-border)}
+.result-icon{font-size:1.5rem;flex-shrink:0}
+.result-verdict{font-family:'IBM Plex Mono',monospace;font-size:0.95rem;font-weight:600}
+.result-banner.danger .result-verdict{color:var(--red)}
+.result-banner.warning .result-verdict{color:var(--amber)}
+.result-banner.safe .result-verdict{color:var(--teal)}
+.result-score{font-size:0.75rem;color:var(--text2);margin-top:2px}
+
+.score-bar{height:6px;border-radius:99px;background:var(--bg4);margin:10px 0;overflow:hidden}
+.score-fill{height:100%;border-radius:99px;transition:width 0.8s cubic-bezier(.4,0,.2,1)}
+.fill-safe{background:var(--teal)}
+.fill-warn{background:var(--amber)}
+.fill-danger{background:var(--red)}
+
+/* FINDINGS */
+.findings-title{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px}
+.finding{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:7px;display:flex;gap:10px;align-items:flex-start}
+.finding.critical{border-color:var(--red-border);background:var(--red-bg)}
+.finding.warning{border-color:var(--amber-border);background:var(--amber-bg)}
+.finding.safe{border-color:var(--teal-border);background:var(--teal-bg)}
+.finding-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.finding-body{flex:1}
+.finding-text{font-size:0.8rem;color:var(--text)}
+.finding.critical .finding-text{color:#ffb3b8}
+.finding.warning .finding-text{color:#ffd580}
+.finding.safe .finding-text{color:#80e8d4}
+.hipaa-ref{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:0.67rem;padding:2px 8px;border-radius:3px;background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue);margin-top:5px}
+
+/* HIPAA PANEL */
+.hipaa-map{margin-top:1.25rem}
+.hipaa-section{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.hipaa-section-title{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.hipaa-control{font-size:0.75rem;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.hipaa-control:last-child{border-bottom:none}
+.hipaa-status{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;padding:2px 7px;border-radius:3px}
+.hipaa-status.risk{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.hipaa-status.ok{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
+.hipaa-status.na{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+
+/* HISTORY */
+.history-item{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 14px;margin-bottom:7px;display:flex;align-items:center;gap:12px}
+.history-verdict{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;font-weight:600;padding:3px 8px;border-radius:3px;flex-shrink:0}
+.hv-safe{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
+.hv-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.hv-danger{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.history-info{flex:1;min-width:0}
+.history-main{font-size:0.82rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-sub{font-size:0.72rem;color:var(--text2);margin-top:1px}
+.history-score{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;font-weight:600;flex-shrink:0}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:0.5}
+.empty-text{font-size:0.85rem}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{font-size:0.7rem;padding:3px 9px;border-radius:3px;font-family:'IBM Plex Mono',monospace}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.tag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.tag-teal{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
+
+/* URL PANEL */
+.url-result{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.url-display{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--text2);word-break:break-all;margin-bottom:10px;padding:8px;background:var(--bg4);border-radius:5px;border:1px solid var(--border)}
+.check-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem}
+.check-row:last-child{border-bottom:none}
+.check-label{color:var(--text2);font-family:'IBM Plex Mono',monospace;font-size:0.7rem}
+.check-val{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;padding:2px 8px;border-radius:3px}
+.cv-pass{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border)}
+.cv-fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.cv-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.cv-na{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+
+.full{grid-column:1/-1}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div style="font-size:2rem">📧</div>
-  <div>
-    <h1>CyberShield Email Security Filter</h1>
-    <p>Phishing detection, malicious link scanning, and sender domain analysis</p>
+  <div class="header-left">
+    <div class="logo-icon">🏥</div>
     <div>
-      <span class="badge">Phishing Detection</span>
-      <span class="badge">Malicious URL Scanning</span>
-      <span class="badge">Sender Spoofing Detection</span>
-      <span class="badge">DMARC/SPF Analysis</span>
+      <div class="logo-title">CyberShield Healthcare Security Suite</div>
+      <div class="logo-sub">HIPAA-aligned threat detection for healthcare organizations · Open Source · Free</div>
     </div>
+  </div>
+  <div class="header-badges">
+    <span class="hbadge live">● Active</span>
+    <span class="hbadge">HIPAA §164.308</span>
+    <span class="hbadge">NIST CSF</span>
+    <span class="hbadge">OCR Aligned</span>
+    <span class="hbadge">v2.0</span>
   </div>
 </div>
 
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('email')">📧 Email Phishing Analyzer</div>
+  <div class="tab" onclick="switchTab('url')">🔗 URL / Web Traffic Checker</div>
+  <div class="tab" onclick="switchTab('hipaa')">🏛 HIPAA Framework</div>
+</div>
+
+<!-- EMAIL TAB -->
+<div class="panel active" id="panel-email">
 <div class="container">
 
-  <div class="metrics-row">
-    <div class="metric-sm"><div class="metric-sm-num red" id="totalScanned">0</div><div class="metric-sm-label">Emails Analyzed</div></div>
-    <div class="metric-sm"><div class="metric-sm-num red" id="totalPhishing">0</div><div class="metric-sm-label">Phishing Caught</div></div>
-    <div class="metric-sm"><div class="metric-sm-num green" id="totalSafe">0</div><div class="metric-sm-label">Clean Emails</div></div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-num teal" id="e-total">0</div><div class="metric-label">Emails Analyzed</div></div>
+    <div class="metric"><div class="metric-num red" id="e-phish">0</div><div class="metric-label">Phishing Caught</div></div>
+    <div class="metric"><div class="metric-num amber" id="e-susp">0</div><div class="metric-label">Suspicious</div></div>
+    <div class="metric"><div class="metric-num teal" id="e-safe">0</div><div class="metric-label">Clean Emails</div></div>
   </div>
 
-  <div class="grid">
-
-    <!-- Input Panel -->
+  <div class="grid2">
     <div class="card">
-      <h2>📨 Analyze Email</h2>
-
+      <div class="card-title">📨 Analyze Email</div>
       <label>Sender Email Address</label>
-      <input type="text" id="senderEmail" placeholder="sender@example.com">
-
+      <input type="text" id="e-sender" placeholder="sender@example.com">
       <label>Reply-To Address (if different)</label>
-      <input type="text" id="replyTo" placeholder="Leave blank if same as sender">
-
+      <input type="text" id="e-replyto" placeholder="Leave blank if same as sender">
       <label>Subject Line</label>
-      <input type="text" id="subject" placeholder="Email subject">
+      <input type="text" id="e-subject" placeholder="Email subject line">
+      <label>Email Body</label>
+      <textarea id="e-body" placeholder="Paste the full email body here..."></textarea>
+      <button class="btn btn-primary" onclick="analyzeEmail()">🔍 Analyze for Healthcare Threats</button>
 
-      <label>Email Body (paste full text)</label>
-      <textarea id="emailBody" placeholder="Paste email body content here..."></textarea>
-
-      <button class="btn btn-primary" onclick="analyzeEmail()">🔍 Analyze Email for Threats</button>
-
-      <div class="sample-emails">
-        <label style="margin-top:14px">Quick test — load a sample email:</label>
-        <button class="sample-btn" onclick="loadSample('phishing')">
-          <span class="sample-label">⚠️ Phishing Example</span>
-          "Your EPIC account has been suspended — verify now"
-        </button>
-        <button class="sample-btn" onclick="loadSample('legitimate')">
-          <span class="sample-label">✅ Legitimate Example</span>
-          "Your monthly report from IT is ready"
-        </button>
-        <button class="sample-btn" onclick="loadSample('spoofed')">
-          <span class="sample-label">🚨 Spoofed Sender Example</span>
-          "CEO requesting urgent wire transfer"
-        </button>
-        <button class="sample-btn" onclick="loadSample('malware')">
-          <span class="sample-label">☠️ Malware Link Example</span>
-          "Invoice attached — please review"
-        </button>
+      <label style="margin-top:16px">Healthcare Scenario Samples</label>
+      <div class="sample-grid">
+        <button class="sample-btn" onclick="loadEmailSample('epic')"><span class="sl">⚠️ EHR Phishing</span>EPIC account suspended</button>
+        <button class="sample-btn" onclick="loadEmailSample('medicare')"><span class="sl">🚨 Medicare Fraud</span>Medicare billing alert</button>
+        <button class="sample-btn" onclick="loadEmailSample('ransomware')"><span class="sl">☠️ Ransomware</span>Invoice with malware link</button>
+        <button class="sample-btn" onclick="loadEmailSample('legitimate')"><span class="sl">✅ Legitimate</span>IT security report</button>
+        <button class="sample-btn" onclick="loadEmailSample('phi')"><span class="sl">🏥 PHI Request</span>Urgent patient data request</button>
+        <button class="sample-btn" onclick="loadEmailSample('bec')"><span class="sl">💼 BEC / Wire Fraud</span>CFO wire transfer</button>
       </div>
     </div>
 
-    <!-- Results Panel -->
     <div class="card">
-      <h2>🔬 Analysis Results</h2>
-      <div id="resultsPanel">
-        <div style="text-align:center;padding:40px 20px;color:#9ca3af">
-          <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
-          <div style="font-size:0.88rem">Submit an email above to see<br>the threat analysis results</div>
-        </div>
+      <div class="card-title">🔬 Analysis Results</div>
+      <div id="e-results">
+        <div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Submit an email above to see<br>the threat analysis</div></div>
       </div>
     </div>
 
-    <!-- Scan History -->
-    <div class="card full-width">
-      <h2>📋 Scan History</h2>
-      <div id="historyPanel">
-        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:0.85rem">No emails analyzed yet</div>
-      </div>
+    <div class="card full">
+      <div class="card-title">📋 Scan History</div>
+      <div id="e-history"><div class="empty"><div class="empty-text">No emails analyzed yet</div></div></div>
     </div>
-
   </div>
+</div>
+</div>
+
+<!-- URL TAB -->
+<div class="panel" id="panel-url">
+<div class="container">
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-num teal" id="u-total">0</div><div class="metric-label">URLs Checked</div></div>
+    <div class="metric"><div class="metric-num red" id="u-malicious">0</div><div class="metric-label">Malicious</div></div>
+    <div class="metric"><div class="metric-num amber" id="u-suspicious">0</div><div class="metric-label">Suspicious</div></div>
+    <div class="metric"><div class="metric-num teal" id="u-safe">0</div><div class="metric-label">Safe</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🔗 URL / Web Traffic Check</div>
+      <label>Enter URL to Analyze</label>
+      <input type="text" id="u-url" placeholder="https://example.com/page">
+      <label>Context (optional)</label>
+      <select id="u-context">
+        <option value="">Select context...</option>
+        <option value="email">Found in email</option>
+        <option value="browser">Encountered in browser</option>
+        <option value="text">Received via text/SMS</option>
+        <option value="document">Found in document</option>
+      </select>
+      <button class="btn btn-primary" onclick="analyzeURL()">🔍 Analyze URL</button>
+
+      <label style="margin-top:16px">Test Samples</label>
+      <div class="sample-grid">
+        <button class="sample-btn" onclick="loadURLSample('malware')"><span class="sl">☠️ Malware</span>IP-based malware URL</button>
+        <button class="sample-btn" onclick="loadURLSample('phishing')"><span class="sl">⚠️ Phishing</span>Typosquatted EHR site</button>
+        <button class="sample-btn" onclick="loadURLSample('hightld')"><span class="sl">🚨 High-Risk TLD</span>Healthcare .tk domain</button>
+        <button class="sample-btn" onclick="loadURLSample('safe')"><span class="sl">✅ Legitimate</span>CMS.gov official site</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔬 URL Analysis Results</div>
+      <div id="u-results">
+        <div class="empty"><div class="empty-icon">🔗</div><div class="empty-text">Enter a URL above to check<br>for threats and HIPAA risk</div></div>
+      </div>
+    </div>
+
+    <div class="card full">
+      <div class="card-title">📋 URL Check History</div>
+      <div id="u-history"><div class="empty"><div class="empty-text">No URLs checked yet</div></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- HIPAA TAB -->
+<div class="panel" id="panel-hipaa">
+<div class="container">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🏛 HIPAA Security Rule Framework</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.7">CyberShield maps every detected threat to the relevant HIPAA Security Rule safeguard, helping healthcare organizations understand their compliance exposure and document their security posture for OCR audits.</p>
+
+      <div class="hipaa-section">
+        <div class="hipaa-section-title">📋 Administrative Safeguards · §164.308</div>
+        <div class="hipaa-control"><span>Security Management Process (§164.308(a)(1))</span><span class="hipaa-status na">Monitoring</span></div>
+        <div class="hipaa-control"><span>Security Awareness Training (§164.308(a)(5))</span><span class="hipaa-status na">Phishing defense</span></div>
+        <div class="hipaa-control"><span>Security Incident Procedures (§164.308(a)(6))</span><span class="hipaa-status na">Detection</span></div>
+        <div class="hipaa-control"><span>Contingency Plan (§164.308(a)(7))</span><span class="hipaa-status na">Resilience</span></div>
+      </div>
+
+      <div class="hipaa-section">
+        <div class="hipaa-section-title">🔒 Technical Safeguards · §164.312</div>
+        <div class="hipaa-control"><span>Access Control (§164.312(a)(1))</span><span class="hipaa-status na">Credential phishing</span></div>
+        <div class="hipaa-control"><span>Audit Controls (§164.312(b))</span><span class="hipaa-status na">Scan logging</span></div>
+        <div class="hipaa-control"><span>Integrity (§164.312(c)(1))</span><span class="hipaa-status na">Data integrity</span></div>
+        <div class="hipaa-control"><span>Transmission Security (§164.312(e)(1))</span><span class="hipaa-status na">Malicious URLs</span></div>
+      </div>
+
+      <div class="hipaa-section">
+        <div class="hipaa-section-title">🏢 Physical Safeguards · §164.310</div>
+        <div class="hipaa-control"><span>Workstation Security (§164.310(c))</span><span class="hipaa-status na">Malware prevention</span></div>
+        <div class="hipaa-control"><span>Device &amp; Media Controls (§164.310(d))</span><span class="hipaa-status na">Ransomware</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Healthcare Threat Landscape</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:1rem;line-height:1.7">Why healthcare-specific detection matters:</p>
+
+      <div class="hipaa-section">
+        <div class="hipaa-section-title">🎯 Healthcare-Specific Attack Vectors</div>
+        <div class="hipaa-control"><span>EHR credential phishing (EPIC, Cerner, Meditech)</span><span class="hipaa-status risk">HIGH</span></div>
+        <div class="hipaa-control"><span>Medicare/Medicaid billing fraud emails</span><span class="hipaa-status risk">HIGH</span></div>
+        <div class="hipaa-control"><span>PHI exfiltration via email</span><span class="hipaa-status risk">CRITICAL</span></div>
+        <div class="hipaa-control"><span>Ransomware via malicious attachments</span><span class="hipaa-status risk">CRITICAL</span></div>
+        <div class="hipaa-control"><span>Business Email Compromise (BEC)</span><span class="hipaa-status risk">HIGH</span></div>
+        <div class="hipaa-control"><span>Fake patient portal links</span><span class="hipaa-status risk">HIGH</span></div>
+        <div class="hipaa-control"><span>Supply chain / vendor impersonation</span><span class="hipaa-status risk">MEDIUM</span></div>
+      </div>
+
+      <div class="hipaa-section" style="margin-top:10px">
+        <div class="hipaa-section-title">⚖️ OCR Breach Notification Triggers</div>
+        <div class="hipaa-control"><span>Unauthorized PHI access via phishing</span><span class="hipaa-status risk">Reportable</span></div>
+        <div class="hipaa-control"><span>Ransomware encrypting ePHI</span><span class="hipaa-status risk">Reportable</span></div>
+        <div class="hipaa-control"><span>Credential compromise of EHR system</span><span class="hipaa-status risk">Reportable</span></div>
+        <div class="hipaa-control"><span>Malware exfiltrating patient records</span><span class="hipaa-status risk">Reportable</span></div>
+      </div>
+
+      <div style="margin-top:14px;padding:12px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:7px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:0.72rem;color:var(--blue);margin-bottom:6px">📌 HIPAA Breach Cost Reference</div>
+        <div style="font-size:0.78rem;color:var(--text2);line-height:1.7">Average healthcare data breach cost: <strong style="color:var(--text)">$10.9M</strong> (IBM 2023)<br>Average OCR penalty per violation: <strong style="color:var(--text)">$100–$50,000</strong><br>CyberShield helps prevent breach events before they occur.</div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
-let scanHistory = [];
-let totalScanned = 0, totalPhishing = 0, totalSafe = 0;
+// ── STATE ──
+let eTotal=0,ePhish=0,eSusp=0,eSafe=0;
+let uTotal=0,uMalicious=0,uSuspicious=0,uSafe=0;
+let eHistory=[],uHistory=[];
 
-const PHISHING_KEYWORDS = [
-  'verify your account','account suspended','unusual activity','click here immediately',
-  'confirm your identity','your account will be closed','update your information',
-  'security alert','unauthorized access','verify now','act immediately',
-  'your password has expired','you have been selected','claim your prize',
-  'wire transfer','urgent request','ceo','president','wire','bitcoin','gift card',
-  'suspended','locked','disabled','compromised','breach','immediately','asap',
-];
+// ── HEALTHCARE-SPECIFIC PATTERNS ──
+const HEALTHCARE_EHR_DOMAINS=['epic','cerner','meditech','allscripts','athenahealth','eclinicalworks','nextgen','veradigm','oracle health','carestream'];
+const HEALTHCARE_SPOOF_PATTERNS=[/ep1c/i,/cern3r/i,/meditek/i,/athen4/i,/medltech/i,/epicsystems-/i,/cerner-/i,/mychart-/i,/mychartsecure/i,/epic-verify/i,/epicehr/i];
+const MEDICARE_PATTERNS=[/medicare/i,/medicaid/i,/cms\.gov-/i,/hhs-alert/i,/medicare-update/i,/cms-billing/i];
+const PHI_KEYWORDS=['patient','phi','ephi','medical record','health record','ssn','social security','date of birth','dob','diagnosis','prescription','insurance id','member id','npi','provider number','ehr','emr','hipaa','protected health'];
+const RANSOMWARE_KEYWORDS=['invoice','payment','receipt','statement','overdue','past due','attached document','open attachment','download now','view document'];
+const PHISHING_URGENCY=['verify your account','account suspended','unusual activity','click here immediately','confirm your identity','account will be closed','update your information','unauthorized access','verify now','act immediately','password expired','security alert','immediately','asap','24 hours','expires today','action required','final notice'];
+const BEC_PATTERNS=['wire transfer','cfo','ceo','president','executive','payroll','accounts payable','finance department','urgent payment','confidential request','do not discuss','board meeting'];
+const MALICIOUS_URL_PATTERNS=[/paypa1\.com/i,/micros0ft\.com/i,/arnazon\.com/i,/g00gle/i,/app1e/i,/ep1c/i,/mychartsecure\./i,/hipaa-update\./i,/medicare-alert\./i,/cms-gov\./i,/hhs-alert\./i,/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/];
+const HIGH_RISK_TLDS=['.tk','.ml','.ga','.cf','.gq','.pw','.top','.xyz','.online','.click','.ru','.cn','.su'];
+const LEGIT_HEALTHCARE=['cms.gov','hhs.gov','cdc.gov','nih.gov','fda.gov','nist.gov','cisa.gov','epic.com','cerner.com','microsoft.com','google.com','outlook.com'];
 
-const MALICIOUS_URL_PATTERNS = [
-  /paypa1\.com/i, /rn0rgan\.com/i, /micros0ft\.com/i, /arnazon\.com/i,
-  /.*-epic-verify\./i, /.*mychartsecure\./i, /.*hipaa-update\./i,
-  /.*medicare-alert\./i, /bit\.ly\/[a-z0-9]{5,}/i,
-  /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
-];
+function extractUrls(text){return text.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi)||[]}
 
-const HIGH_RISK_TLDS = ['.tk','.ml','.ga','.cf','.gq','.pw','.top','.xyz','.online','.click'];
+// ── HIPAA MAPPING ──
+function hipaaRef(code,label){return`<span class="hipaa-ref">⚖️ HIPAA ${code} · ${label}</span>`}
 
-const SPOOFING_INDICATORS = [
-  'ceo','president','director','executive','hr department','payroll',
-  'finance department','accounts payable','wire transfer request',
-];
+// ── EMAIL ANALYSIS ──
+function analyzeEmail(){
+  const sender=document.getElementById('e-sender').value.trim();
+  const replyTo=document.getElementById('e-replyto').value.trim();
+  const subject=document.getElementById('e-subject').value.trim();
+  const body=document.getElementById('e-body').value.trim();
+  if(!sender&&!subject&&!body){alert('Please enter at least a sender and email body.');return;}
 
-const LEGITIMATE_DOMAINS = [
-  'gmail.com','outlook.com','microsoft.com','google.com','yahoo.com',
-  'apple.com','amazon.com','cisa.gov','hhs.gov','nist.gov','cdc.gov',
-];
+  const findings=[];
+  let risk=0;
+  const senderDomain=sender.includes('@')?sender.split('@')[1]?.toLowerCase():'';
+  const subLower=subject.toLowerCase();
+  const bodyLower=body.toLowerCase();
 
-function extractUrls(text) {
-  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
-  return text.match(urlRegex) || [];
-}
-
-function analyzeEmail() {
-  const sender = document.getElementById('senderEmail').value.trim();
-  const replyTo = document.getElementById('replyTo').value.trim();
-  const subject = document.getElementById('subject').value.trim();
-  const body = document.getElementById('emailBody').value.trim();
-
-  if (!sender && !subject && !body) {
-    alert('Please enter at least a sender email and email body to analyze.');
-    return;
-  }
-
-  const findings = [];
-  let riskScore = 0;
-
-  // 1. Sender domain analysis
-  const senderDomain = sender.includes('@') ? sender.split('@')[1]?.toLowerCase() : '';
-  if (senderDomain) {
-    const tld = '.' + senderDomain.split('.').slice(-1)[0];
-    if (HIGH_RISK_TLDS.includes(tld)) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Sender domain uses high-risk TLD (${tld}) — commonly used in phishing campaigns` });
-      riskScore += 35;
+  // 1. EHR domain spoofing
+  if(senderDomain){
+    if(HEALTHCARE_SPOOF_PATTERNS.some(p=>p.test(senderDomain))){
+      findings.push({type:'critical',icon:'🚨',text:`EHR system domain spoofing detected: "${senderDomain}" impersonates a healthcare EHR platform — attackers harvest clinician credentials to access patient records.`,hipaa:hipaaRef('§164.312(a)(1)','Access Control — credential theft vector')});
+      risk+=45;
     }
-    // Typosquatting detection
-    const typosquatPatterns = [/paypa1/i,/rn0rgan/i,/micros0ft/i,/g00gle/i,/arnazon/i,/app1e/i];
-    if (typosquatPatterns.some(p => p.test(senderDomain))) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Typosquatted domain detected: "${senderDomain}" appears to impersonate a legitimate organization` });
-      riskScore += 40;
+    if(MEDICARE_PATTERNS.some(p=>p.test(senderDomain))){
+      findings.push({type:'critical',icon:'🚨',text:`Medicare/CMS domain impersonation detected: "${senderDomain}" mimics a federal healthcare agency — common in Medicare fraud and provider credential theft campaigns.`,hipaa:hipaaRef('§164.308(a)(1)','Security Management — federal impersonation')});
+      risk+=40;
     }
-    // Free email used to impersonate corporate
-    const subjectLower = subject.toLowerCase();
-    if (LEGITIMATE_DOMAINS.includes(senderDomain) &&
-        SPOOFING_INDICATORS.some(s => subjectLower.includes(s) || body.toLowerCase().includes(s))) {
-      findings.push({ type: 'warning', icon: '⚠️', text: `Free email provider used with executive impersonation language — possible Business Email Compromise (BEC)` });
-      riskScore += 25;
+    const tld='.'+senderDomain.split('.').slice(-1)[0];
+    if(HIGH_RISK_TLDS.includes(tld)){
+      findings.push({type:'critical',icon:'🚨',text:`Sender domain uses high-risk TLD (${tld}): "${senderDomain}" — free/abused domains overwhelmingly used in healthcare phishing campaigns.`,hipaa:hipaaRef('§164.308(a)(5)','Security Awareness Training — phishing indicator')});
+      risk+=35;
+    }
+    if(LEGIT_HEALTHCARE.includes(senderDomain)&&(BEC_PATTERNS.some(s=>bodyLower.includes(s))||BEC_PATTERNS.some(s=>subLower.includes(s)))){
+      findings.push({type:'critical',icon:'🚨',text:`Business Email Compromise (BEC) pattern: free/public email domain used with executive/financial impersonation language — common wire fraud and payroll diversion attack.`,hipaa:hipaaRef('§164.308(a)(6)','Security Incident Procedures — BEC response')});
+      risk+=30;
     }
   }
 
   // 2. Reply-To mismatch
-  if (replyTo && sender) {
-    const senderDom = sender.split('@')[1]?.toLowerCase();
-    const replyDom = replyTo.split('@')[1]?.toLowerCase();
-    if (senderDom && replyDom && senderDom !== replyDom) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Reply-To domain mismatch: sender is "${senderDom}" but replies go to "${replyDom}" — classic phishing indicator` });
-      riskScore += 30;
+  if(replyTo&&sender){
+    const sd=sender.split('@')[1]?.toLowerCase();
+    const rd=replyTo.split('@')[1]?.toLowerCase();
+    if(sd&&rd&&sd!==rd){
+      findings.push({type:'critical',icon:'🚨',text:`Reply-To domain mismatch: sender is "${sd}" but replies route to "${rd}" — a classic phishing technique to intercept responses containing PHI or credentials.`,hipaa:hipaaRef('§164.312(e)(1)','Transmission Security — PHI interception risk')});
+      risk+=30;
     }
   }
 
-  // 3. Subject line analysis
-  if (subject) {
-    const subLower = subject.toLowerCase();
-    const urgencyWords = ['urgent','immediate','asap','action required','final notice','last chance','expires today','24 hours'];
-    const urgencyFound = urgencyWords.filter(w => subLower.includes(w));
-    if (urgencyFound.length > 0) {
-      findings.push({ type: 'warning', icon: '⚠️', text: `Urgency language in subject line: "${urgencyFound.join('", "')}" — common social engineering tactic` });
-      riskScore += 15;
-    }
-    if (/re:|fwd:|fw:/i.test(subject) && body.length < 200) {
-      findings.push({ type: 'warning', icon: '⚠️', text: `Forwarded/reply format with minimal body — possible thread hijacking attack` });
-      riskScore += 10;
-    }
+  // 3. PHI keyword detection
+  const phiFound=PHI_KEYWORDS.filter(k=>bodyLower.includes(k)||subLower.includes(k));
+  if(phiFound.length>=2){
+    findings.push({type:'critical',icon:'🏥',text:`Protected Health Information (PHI) references detected: "${phiFound.slice(0,4).join('", "')}" — emailing PHI without encryption violates HIPAA and may indicate data exfiltration attempt.`,hipaa:hipaaRef('§164.312(e)(1)','Transmission Security — unencrypted PHI transmission')});
+    risk+=35;
+  } else if(phiFound.length===1){
+    findings.push({type:'warning',icon:'⚠️',text:`Healthcare data reference found: "${phiFound[0]}" — verify this email is from a trusted source before responding with any patient information.`,hipaa:hipaaRef('§164.312(c)(1)','Integrity — PHI handling')});
+    risk+=15;
   }
 
-  // 4. Body phishing keyword analysis
-  if (body) {
-    const bodyLower = body.toLowerCase();
-    const matchedKeywords = PHISHING_KEYWORDS.filter(k => bodyLower.includes(k));
-    if (matchedKeywords.length >= 3) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Multiple phishing keywords detected: "${matchedKeywords.slice(0,4).join('", "')}"${matchedKeywords.length > 4 ? ` and ${matchedKeywords.length - 4} more` : ''}` });
-      riskScore += Math.min(matchedKeywords.length * 8, 35);
-    } else if (matchedKeywords.length > 0) {
-      findings.push({ type: 'warning', icon: '⚠️', text: `Phishing-related keywords found: "${matchedKeywords.join('", "')}"` });
-      riskScore += matchedKeywords.length * 6;
-    }
+  // 4. EHR keyword in subject/body
+  const ehrFound=HEALTHCARE_EHR_DOMAINS.filter(e=>bodyLower.includes(e)||subLower.includes(e));
+  if(ehrFound.length>0&&risk>20){
+    findings.push({type:'warning',icon:'⚕️',text:`Healthcare system reference ("${ehrFound[0]}") combined with other risk indicators — attackers often impersonate EHR platforms to steal login credentials used to access patient records.`,hipaa:hipaaRef('§164.308(a)(5)','Security Awareness — EHR credential phishing')});
+    risk+=15;
+  }
 
-    // CEO/executive fraud
-    if (SPOOFING_INDICATORS.slice(0,5).some(s => bodyLower.includes(s))) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Executive impersonation language detected — possible Business Email Compromise (BEC) or wire fraud attempt` });
-      riskScore += 30;
-    }
+  // 5. Ransomware attachment patterns
+  const ransomFound=RANSOMWARE_KEYWORDS.filter(k=>bodyLower.includes(k));
+  if(ransomFound.length>=2){
+    findings.push({type:'critical',icon:'☠️',text:`Ransomware delivery pattern detected: "${ransomFound.slice(0,3).join('", "')}" — healthcare organizations are the #1 ransomware target; malicious attachments can encrypt ePHI and trigger mandatory OCR breach reporting.`,hipaa:hipaaRef('§164.308(a)(7)','Contingency Plan — ransomware preparedness')});
+    risk+=30;
+  }
 
-    // Gift card / payment fraud
-    if (/gift card|itunes|amazon card|google play card/i.test(body)) {
-      findings.push({ type: 'critical', icon: '🚨', text: `Gift card request detected — extremely common in CEO fraud and social engineering attacks` });
-      riskScore += 40;
-    }
+  // 6. BEC / Wire fraud
+  const becFound=BEC_PATTERNS.filter(k=>bodyLower.includes(k));
+  if(becFound.length>=2){
+    findings.push({type:'critical',icon:'💼',text:`Business Email Compromise (BEC) indicators: "${becFound.slice(0,3).join('", "')}" — healthcare BEC attacks target payroll diversion, vendor payment fraud, and wire transfers. Average loss: $125,000+.`,hipaa:hipaaRef('§164.308(a)(6)','Security Incident Procedures — financial fraud')});
+    risk+=35;
+  }
 
-    // 5. URL analysis in body
-    const urls = extractUrls(body);
-    if (urls.length > 0) {
-      urls.forEach(url => {
-        if (MALICIOUS_URL_PATTERNS.some(p => p.test(url))) {
-          findings.push({ type: 'critical', icon: '🚨', text: `Malicious URL detected: ${url.substring(0,60)}${url.length > 60 ? '...' : ''}` });
-          riskScore += 45;
+  // 7. Urgency language
+  const urgFound=PHISHING_URGENCY.filter(k=>bodyLower.includes(k)||subLower.includes(k));
+  if(urgFound.length>=2){
+    findings.push({type:'warning',icon:'⚠️',text:`Multiple urgency/pressure tactics detected: "${urgFound.slice(0,3).join('", "')}" — social engineering designed to bypass rational evaluation, particularly effective against busy clinical staff.`,hipaa:hipaaRef('§164.308(a)(5)','Security Awareness Training — social engineering')});
+    risk+=20;
+  } else if(urgFound.length===1){
+    findings.push({type:'warning',icon:'⚠️',text:`Urgency language detected: "${urgFound[0]}" — a common social engineering tactic. Verify through official channels before taking action.`});
+    risk+=8;
+  }
+
+  // 8. URL analysis
+  const urls=extractUrls(body);
+  if(urls.length>0){
+    urls.forEach(url=>{
+      if(MALICIOUS_URL_PATTERNS.some(p=>p.test(url))){
+        findings.push({type:'critical',icon:'🔗',text:`Malicious URL detected: ${url.substring(0,70)}${url.length>70?'...':''} — matches known malicious domain pattern or uses raw IP address (no legitimate healthcare site does this).`,hipaa:hipaaRef('§164.312(e)(1)','Transmission Security — malicious endpoint')});
+        risk+=45;
+      }
+      try{
+        const u=new URL(url);
+        const tld='.'+u.hostname.split('.').slice(-1)[0];
+        if(HIGH_RISK_TLDS.includes(tld)){
+          findings.push({type:'critical',icon:'🔗',text:`Link uses high-risk TLD (${tld}): ${u.hostname} — no legitimate healthcare organization or government agency uses these domains.`,hipaa:hipaaRef('§164.312(e)(1)','Transmission Security — suspicious endpoint')});
+          risk+=30;
         }
-        try {
-          const urlObj = new URL(url);
-          const tld = '.' + urlObj.hostname.split('.').slice(-1)[0];
-          if (HIGH_RISK_TLDS.includes(tld)) {
-            findings.push({ type: 'critical', icon: '🚨', text: `Link uses high-risk TLD (${tld}): ${urlObj.hostname}` });
-            riskScore += 30;
-          }
-          if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(urlObj.hostname)) {
-            findings.push({ type: 'critical', icon: '🚨', text: `Link uses raw IP address as host: ${urlObj.hostname} — no legitimate site does this` });
-            riskScore += 35;
-          }
-        } catch(e) {}
-      });
-      if (urls.length > 5) {
-        findings.push({ type: 'warning', icon: '⚠️', text: `Excessive number of URLs in email body (${urls.length}) — unusual for legitimate emails` });
-        riskScore += 10;
-      }
-    }
-
-    // 6. Attachment references
-    if (/attached|attachment|\.exe|\.zip|\.js|\.vbs|\.docm|\.xlsm|invoice|receipt/i.test(body)) {
-      findings.push({ type: 'warning', icon: '⚠️', text: `References to attachments detected — verify attachment type before opening (avoid .exe, .zip, .docm, .xlsm)` });
-      riskScore += 12;
-    }
-
-    // 7. Positive indicators
-    if (senderDomain && LEGITIMATE_DOMAINS.includes(senderDomain) && riskScore < 20) {
-      findings.push({ type: 'safe', icon: '✅', text: `Sender domain "${senderDomain}" is a known legitimate domain` });
-    }
-    if (urls.length === 0 && matchedKeywords.length === 0) {
-      findings.push({ type: 'safe', icon: '✅', text: `No suspicious URLs or phishing keywords found in email body` });
+        if(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(u.hostname)){
+          findings.push({type:'critical',icon:'🔗',text:`Link uses raw IP address: ${u.hostname} — legitimate healthcare portals, EHR systems, and government sites never use raw IP addresses. This strongly indicates malware or phishing.`,hipaa:hipaaRef('§164.312(e)(1)','Transmission Security — IP-based malicious link')});
+          risk+=40;
+        }
+        if(HEALTHCARE_SPOOF_PATTERNS.some(p=>p.test(u.hostname))){
+          findings.push({type:'critical',icon:'🔗',text:`URL impersonates a healthcare EHR platform: ${u.hostname} — clicking this link likely leads to a credential harvesting page designed to steal EHR login details.`,hipaa:hipaaRef('§164.312(a)(1)','Access Control — credential harvesting')});
+          risk+=40;
+        }
+      }catch(e){}
+    });
+    if(urls.length>4){
+      findings.push({type:'warning',icon:'⚠️',text:`Excessive URLs in email body (${urls.length}) — legitimate healthcare communications rarely include this many links.`});
+      risk+=10;
     }
   }
 
-  // Cap score
-  riskScore = Math.min(riskScore, 100);
-
-  // Determine verdict
-  let verdict, verdictClass, verdictIcon;
-  if (riskScore >= 60) {
-    verdict = 'PHISHING / MALICIOUS'; verdictClass = 'result-danger'; verdictIcon = '🚨';
-    totalPhishing++;
-  } else if (riskScore >= 25) {
-    verdict = 'SUSPICIOUS'; verdictClass = 'result-warning'; verdictIcon = '⚠️';
-    totalPhishing++;
-  } else {
-    verdict = 'LIKELY SAFE'; verdictClass = 'result-safe'; verdictIcon = '✅';
-    totalSafe++;
+  // 9. Attachment refs
+  if(/\.exe|\.zip|\.js|\.vbs|\.docm|\.xlsm|\.ps1/i.test(body)){
+    findings.push({type:'critical',icon:'☠️',text:`High-risk file type referenced in email — executable or macro-enabled files are primary ransomware delivery mechanisms targeting healthcare ePHI systems.`,hipaa:hipaaRef('§164.308(a)(7)','Contingency Plan — malware/ransomware')});
+    risk+=35;
   }
-  totalScanned++;
 
-  // Update counters
-  document.getElementById('totalScanned').textContent = totalScanned;
-  document.getElementById('totalPhishing').textContent = totalPhishing;
-  document.getElementById('totalSafe').textContent = totalSafe;
+  // 10. Positive signals
+  if(senderDomain&&LEGIT_HEALTHCARE.includes(senderDomain)&&risk<25){
+    findings.push({type:'safe',icon:'✅',text:`Sender domain "${senderDomain}" is a known legitimate domain.`});
+  }
+  if(urls.length===0&&phiFound.length===0&&urgFound.length===0&&risk<15){
+    findings.push({type:'safe',icon:'✅',text:`No phishing patterns, PHI references, or suspicious URLs detected. Email appears consistent with legitimate healthcare communication.`,hipaa:hipaaRef('§164.308(a)(5)','Security Awareness — low risk')});
+  }
 
-  // Render results
-  const scoreColor = riskScore >= 60 ? 'score-danger' : riskScore >= 25 ? 'score-warn' : 'score-safe';
-  const html = `
-    <div class="result-card ${verdictClass}">
-      <div class="result-title">${verdictIcon} ${verdict}</div>
-      <div style="font-size:0.8rem;margin-bottom:8px;opacity:0.8">Risk Score: ${riskScore}/100</div>
-      <div class="score-bar"><div class="score-fill ${scoreColor}" style="width:${riskScore}%"></div></div>
+  risk=Math.min(risk,100);
+
+  let verdict,vclass,vicon;
+  if(risk>=60){verdict='PHISHING / MALICIOUS';vclass='danger';vicon='🚨';ePhish++;}
+  else if(risk>=25){verdict='SUSPICIOUS';vclass='warning';vicon='⚠️';eSusp++;}
+  else{verdict='LIKELY SAFE';vclass='safe';vicon='✅';eSafe++;}
+  eTotal++;
+
+  document.getElementById('e-total').textContent=eTotal;
+  document.getElementById('e-phish').textContent=ePhish;
+  document.getElementById('e-susp').textContent=eSusp;
+  document.getElementById('e-safe').textContent=eSafe;
+
+  const fillClass=risk>=60?'fill-danger':risk>=25?'fill-warn':'fill-safe';
+  const html=`
+    <div class="result-banner ${vclass}">
+      <div class="result-icon">${vicon}</div>
+      <div>
+        <div class="result-verdict">${verdict}</div>
+        <div class="result-score">Risk Score: ${risk}/100 · ${findings.length} finding${findings.length!==1?'s':''}</div>
+      </div>
     </div>
-    <div style="margin-top:14px">
-      <div style="font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:8px">Findings (${findings.length})</div>
-      ${findings.length === 0
-        ? '<div style="font-size:0.82rem;color:#16a34a;padding:8px 0">✅ No threats or suspicious indicators found</div>'
-        : findings.map(f => `
-          <div class="finding">
-            <span class="finding-icon">${f.icon}</span>
-            <span style="font-size:0.8rem;color:${f.type==='critical'?'#b91c1c':f.type==='warning'?'#b45309':'#166534'}">${f.text}</span>
-          </div>
-        `).join('')
-      }
-    </div>
-    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:5px">
-      ${riskScore >= 60 ? '<span class="tag tag-red">Do Not Click Any Links</span><span class="tag tag-red">Do Not Open Attachments</span><span class="tag tag-red">Report to IT Security</span>' : ''}
-      ${riskScore >= 25 && riskScore < 60 ? '<span class="tag tag-amber">Verify Sender Directly</span><span class="tag tag-amber">Do Not Reply</span>' : ''}
-      ${riskScore < 25 ? '<span class="tag tag-green">Safe to Proceed</span><span class="tag tag-green">No Action Required</span>' : ''}
+    <div class="score-bar"><div class="score-fill ${fillClass}" style="width:${risk}%"></div></div>
+    <div class="findings-title">Findings</div>
+    ${findings.length===0?'<div class="finding safe"><span class="finding-icon">✅</span><div class="finding-body"><div class="finding-text">No threats detected.</div></div></div>':
+      findings.map(f=>`<div class="finding ${f.type}"><span class="finding-icon">${f.icon}</span><div class="finding-body"><div class="finding-text">${f.text}</div>${f.hipaa?f.hipaa:''}</div></div>`).join('')}
+    <div class="tags">
+      ${risk>=60?'<span class="tag tag-red">Do Not Click Links</span><span class="tag tag-red">Do Not Open Attachments</span><span class="tag tag-red">Report to IT Security</span><span class="tag tag-red">Potential HIPAA Incident</span>':''}
+      ${risk>=25&&risk<60?'<span class="tag tag-amber">Verify Sender via Phone</span><span class="tag tag-amber">Do Not Reply with PHI</span><span class="tag tag-amber">Escalate if Unsure</span>':''}
+      ${risk<25?'<span class="tag tag-teal">Safe to Proceed</span><span class="tag tag-teal">No HIPAA Risk Detected</span>':''}
     </div>
   `;
-  document.getElementById('resultsPanel').innerHTML = html;
+  document.getElementById('e-results').innerHTML=html;
 
-  // Add to history
-  const historyItem = {
-    sender: sender || 'Unknown sender',
-    subject: subject || '(No subject)',
-    verdict,
-    verdictClass: riskScore >= 60 ? 'phish' : riskScore >= 25 ? 'suspicious' : 'safe',
-    score: riskScore,
-    time: new Date().toLocaleTimeString()
-  };
-  scanHistory.unshift(historyItem);
-  if (scanHistory.length > 10) scanHistory = scanHistory.slice(0, 10);
-  renderHistory();
+  eHistory.unshift({from:sender||'Unknown',subject:subject||'(No subject)',verdict,vclass:risk>=60?'danger':risk>=25?'warn':'safe',score:risk});
+  if(eHistory.length>8)eHistory=eHistory.slice(0,8);
+  renderEmailHistory();
 }
 
-function renderHistory() {
-  if (scanHistory.length === 0) {
-    document.getElementById('historyPanel').innerHTML = '<div style="text-align:center;padding:20px;color:#9ca3af;font-size:0.85rem">No emails analyzed yet</div>';
-    return;
-  }
-  document.getElementById('historyPanel').innerHTML = scanHistory.map(h => `
+function renderEmailHistory(){
+  if(eHistory.length===0){document.getElementById('e-history').innerHTML='<div class="empty"><div class="empty-text">No emails analyzed yet</div></div>';return;}
+  document.getElementById('e-history').innerHTML=eHistory.map(h=>`
     <div class="history-item">
-      <div class="history-verdict verdict-${h.verdictClass}">${h.verdictClass.toUpperCase()}</div>
-      <div class="history-info">
-        <div class="history-from">${h.sender}</div>
-        <div class="history-subject">${h.subject}</div>
-      </div>
-      <div class="history-score" style="color:${h.score>=60?'#dc2626':h.score>=25?'#d97706':'#16a34a'}">${h.score}/100</div>
-    </div>
-  `).join('');
+      <div class="history-verdict hv-${h.vclass}">${h.verdict.split('/')[0].trim()}</div>
+      <div class="history-info"><div class="history-main">${h.from}</div><div class="history-sub">${h.subject}</div></div>
+      <div class="history-score" style="color:${h.score>=60?'var(--red)':h.score>=25?'var(--amber)':'var(--teal)'}">${h.score}/100</div>
+    </div>`).join('');
 }
 
-function loadSample(type) {
-  const samples = {
-    phishing: {
-      sender: 'security@epicverify-update.tk',
-      replyTo: 'collect@attacker-domain.ru',
-      subject: 'URGENT: Your EPIC EHR Account Has Been Suspended — Verify Immediately',
-      body: 'Dear Healthcare Professional,\n\nWe have detected unusual activity on your EPIC account. Your account has been temporarily suspended due to a security breach.\n\nYou must verify your identity immediately to restore access to patient records.\n\nClick here to verify your account: http://epic-verify-secure.tk/login?id=12345\n\nFailure to verify within 24 hours will result in permanent account closure.\n\nEPIC Security Team'
-    },
-    legitimate: {
-      sender: 'it-support@yourhospital.org',
-      replyTo: '',
-      subject: 'Your Monthly IT Security Report is Ready',
-      body: 'Hi Team,\n\nYour monthly IT security summary report for March 2026 is now available in the IT portal.\n\nPlease log into the internal portal at https://portal.yourhospital.org to review your department summary.\n\nIf you have any questions, please contact the IT helpdesk at extension 4444.\n\nBest regards,\nIT Security Team'
-    },
-    spoofed: {
-      sender: 'ceo.johnson@gmail.com',
-      replyTo: 'payments@offshore-account.ga',
-      subject: 'Urgent Wire Transfer Request — Confidential',
-      body: 'This is urgent and confidential.\n\nI need you to process an immediate wire transfer of $47,500 to our new vendor account. This is time sensitive and must be completed today before end of business.\n\nPlease do not discuss this with anyone else. I am in a board meeting and cannot talk.\n\nWire to:\nBank: International Holdings Ltd\nAccount: 4892-1847-2938\nRouting: 021000089\n\nI will explain everything when I return. This is critical for the deal we are closing.\n\nCEO Johnson'
-    },
-    malware: {
-      sender: 'invoices@accounting-firm.xyz',
-      replyTo: '',
-      subject: 'Invoice #INV-2847 Attached — Payment Due',
-      body: 'Please find attached Invoice #INV-2847 for services rendered in March 2026.\n\nTotal Amount Due: $12,450.00\nDue Date: April 30, 2026\n\nTo view your invoice, please download the attachment or click the link below:\nhttp://1.234.56.78/download/invoice-2847.exe\n\nIf you have questions about this invoice, please contact our billing department.\n\nThank you for your business.\n\nAccounting Department\nFinancial Services Group'
+// ── URL ANALYSIS ──
+function analyzeURL(){
+  const raw=document.getElementById('u-url').value.trim();
+  const context=document.getElementById('u-context').value;
+  if(!raw){alert('Please enter a URL to analyze.');return;}
+  const url=raw.startsWith('http')?raw:'https://'+raw;
+
+  const checks=[];
+  let risk=0;
+
+  // Parse URL
+  let parsed=null;
+  try{parsed=new URL(url);}catch(e){
+    checks.push({label:'URL Format',val:'INVALID',cls:'cv-fail',note:'Could not parse URL — malformed URLs are often used to confuse security filters.'});
+    risk+=20;
+  }
+
+  if(parsed){
+    const host=parsed.hostname.toLowerCase();
+    const tld='.'+host.split('.').slice(-1)[0];
+    const path=parsed.pathname+parsed.search;
+
+    // Protocol
+    checks.push({label:'Protocol',val:parsed.protocol==='https:'?'HTTPS ✓':'HTTP ⚠',cls:parsed.protocol==='https:'?'cv-pass':'cv-warn',note:parsed.protocol!=='https:'?'No encryption — any data transmitted (including credentials or PHI) is exposed.':null});
+    if(parsed.protocol!=='https:')risk+=20;
+
+    // IP address
+    if(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)){
+      checks.push({label:'Host Type',val:'RAW IP',cls:'cv-fail',note:'Raw IP address — no legitimate EHR system, patient portal, or government healthcare site uses an IP address as the host. Strong malware/phishing indicator.'});
+      risk+=45;
+    } else {
+      checks.push({label:'Host Type',val:'DOMAIN ✓',cls:'cv-pass'});
     }
+
+    // TLD risk
+    checks.push({label:'TLD Risk',val:HIGH_RISK_TLDS.includes(tld)?`HIGH (${tld})`:'LOW',cls:HIGH_RISK_TLDS.includes(tld)?'cv-fail':'cv-pass',note:HIGH_RISK_TLDS.includes(tld)?`The "${tld}" TLD is overwhelmingly used by attackers. No legitimate US healthcare organization uses this domain extension.`:null});
+    if(HIGH_RISK_TLDS.includes(tld))risk+=40;
+
+    // Healthcare domain spoofing
+    const isSpoof=HEALTHCARE_SPOOF_PATTERNS.some(p=>p.test(host));
+    checks.push({label:'EHR Spoofing',val:isSpoof?'DETECTED':'NONE',cls:isSpoof?'cv-fail':'cv-pass',note:isSpoof?`Domain "${host}" appears to impersonate a healthcare EHR platform. This is a credential harvesting site designed to steal clinician logins.`:null});
+    if(isSpoof)risk+=45;
+
+    // Medicare/gov spoofing
+    const isMedicare=MEDICARE_PATTERNS.some(p=>p.test(host));
+    checks.push({label:'Gov/CMS Spoof',val:isMedicare?'DETECTED':'NONE',cls:isMedicare?'cv-fail':'cv-pass',note:isMedicare?`Domain impersonates a federal healthcare agency (CMS/HHS). Used in Medicare fraud and provider identity theft.`:null});
+    if(isMedicare)risk+=40;
+
+    // Malicious pattern match
+    const isMalicious=MALICIOUS_URL_PATTERNS.some(p=>p.test(url));
+    checks.push({label:'Malicious Pattern',val:isMalicious?'MATCHED':'CLEAN',cls:isMalicious?'cv-fail':'cv-pass',note:isMalicious?'Matches a known malicious domain or URL pattern.':null});
+    if(isMalicious)risk+=45;
+
+    // Legitimate healthcare domain
+    const isLegit=LEGIT_HEALTHCARE.some(d=>host===d||host.endsWith('.'+d));
+    checks.push({label:'Known Safe Domain',val:isLegit?'YES ✓':'NOT VERIFIED',cls:isLegit?'cv-pass':'cv-na',note:!isLegit?'Domain not in verified safe list — this does not mean it is malicious, but treat with caution.':null});
+    if(isLegit)risk=Math.max(0,risk-30);
+
+    // Suspicious path
+    if(/login|verify|confirm|update|secure|account|password|credential/i.test(path)&&!isLegit){
+      checks.push({label:'Path Analysis',val:'SUSPICIOUS',cls:'cv-warn',note:`Path contains credential-harvesting keywords: "${path.substring(0,50)}" — combined with an unverified domain, this is a strong phishing indicator.`});
+      risk+=15;
+    } else {
+      checks.push({label:'Path Analysis',val:'NORMAL',cls:'cv-pass'});
+    }
+
+    // Excessive subdomains
+    const subdomainCount=host.split('.').length-2;
+    if(subdomainCount>2){
+      checks.push({label:'Subdomain Depth',val:`HIGH (${subdomainCount})`,cls:'cv-warn',note:'Excessive subdomains are used to make malicious URLs look more legitimate (e.g. login.epic.verify.malicious.tk).'});
+      risk+=10;
+    } else {
+      checks.push({label:'Subdomain Depth',val:'NORMAL',cls:'cv-pass'});
+    }
+  }
+
+  risk=Math.min(risk,100);
+  let verdict,vclass,vicon;
+  if(risk>=60){verdict='MALICIOUS / HIGH RISK';vclass='danger';vicon='🚨';uMalicious++;}
+  else if(risk>=25){verdict='SUSPICIOUS';vclass='warning';vicon='⚠️';uSuspicious++;}
+  else{verdict='LIKELY SAFE';vclass='safe';vicon='✅';uSafe++;}
+  uTotal++;
+
+  document.getElementById('u-total').textContent=uTotal;
+  document.getElementById('u-malicious').textContent=uMalicious;
+  document.getElementById('u-suspicious').textContent=uSuspicious;
+  document.getElementById('u-safe').textContent=uSafe;
+
+  const hipaaNote=risk>=60?hipaaRef('§164.312(e)(1)','Transmission Security — do not visit this URL'):risk>=25?hipaaRef('§164.308(a)(5)','Security Awareness — verify before visiting'):'';
+  const fillClass=risk>=60?'fill-danger':risk>=25?'fill-warn':'fill-safe';
+
+  const html=`
+    <div class="result-banner ${vclass}">
+      <div class="result-icon">${vicon}</div>
+      <div>
+        <div class="result-verdict">${verdict}</div>
+        <div class="result-score">Risk Score: ${risk}/100${context?' · Context: '+context:''}</div>
+      </div>
+    </div>
+    <div class="score-bar"><div class="score-fill ${fillClass}" style="width:${risk}%"></div></div>
+    <div class="url-result">
+      <div class="url-display">${raw}</div>
+      ${checks.map(c=>`
+        <div class="check-row">
+          <span class="check-label">${c.label}</span>
+          <span class="check-val ${c.cls}">${c.val}</span>
+        </div>
+        ${c.note?`<div style="font-size:0.72rem;color:var(--text2);padding:4px 0 6px;line-height:1.5;border-bottom:1px solid var(--border)">${c.note}</div>`:''}
+      `).join('')}
+    </div>
+    ${hipaaNote}
+    <div class="tags" style="margin-top:10px">
+      ${risk>=60?'<span class="tag tag-red">Do Not Visit</span><span class="tag tag-red">Block in Firewall</span><span class="tag tag-red">Report to IT</span><span class="tag tag-red">HIPAA Risk</span>':''}
+      ${risk>=25&&risk<60?'<span class="tag tag-amber">Verify Before Visiting</span><span class="tag tag-amber">Contact IT if Unsure</span>':''}
+      ${risk<25?'<span class="tag tag-teal">Safe to Visit</span><span class="tag tag-teal">No HIPAA Risk Detected</span>':''}
+    </div>
+  `;
+  document.getElementById('u-results').innerHTML=html;
+
+  uHistory.unshift({url:raw,verdict,vclass:risk>=60?'danger':risk>=25?'warn':'safe',score:risk});
+  if(uHistory.length>8)uHistory=uHistory.slice(0,8);
+  renderURLHistory();
+}
+
+function renderURLHistory(){
+  if(uHistory.length===0){document.getElementById('u-history').innerHTML='<div class="empty"><div class="empty-text">No URLs checked yet</div></div>';return;}
+  document.getElementById('u-history').innerHTML=uHistory.map(h=>`
+    <div class="history-item">
+      <div class="history-verdict hv-${h.vclass}">${h.verdict.split('/')[0].trim()}</div>
+      <div class="history-info"><div class="history-main">${h.url}</div><div class="history-sub">URL scan</div></div>
+      <div class="history-score" style="color:${h.score>=60?'var(--red)':h.score>=25?'var(--amber)':'var(--teal)'}">${h.score}/100</div>
+    </div>`).join('');
+}
+
+// ── SAMPLES ──
+function loadEmailSample(type){
+  const s={
+    epic:{sender:'security@mychartsecure-epic.tk',replyTo:'harvest@attacker-ru.ru',subject:'URGENT: Your EPIC EHR Account Has Been Suspended — Verify Patient Access Now',body:'Dear Healthcare Professional,\n\nUnusual activity has been detected on your EPIC EHR account. Your access to patient records has been temporarily suspended due to a potential security breach.\n\nYou must verify your identity immediately to restore access to patient charts and medical records. Failure to verify within 24 hours will result in permanent account closure.\n\nVerify your account now: http://epic-verify-secure.tk/login?provider=12345\n\nThis is urgent. Patient care may be affected.\n\nEPIC Security Team\nMyChart Support'},
+    medicare:{sender:'billing-alert@medicare-cms-gov.ml',replyTo:'',subject:'URGENT: Medicare Billing Irregularity Detected — Provider Action Required',body:'Dear Healthcare Provider,\n\nCMS has detected irregularities in your recent Medicare billing submissions (NPI: XXXXXXXXXX). Your provider account has been flagged for review.\n\nYou must update your provider information and confirm your Medicare billing credentials immediately to avoid suspension of reimbursements.\n\nAccess your provider portal: http://cms-medicare-update.ga/provider/verify\n\nFailure to respond within 48 hours will result in suspension of Medicare payments.\n\nCMS Billing Compliance Team'},
+    ransomware:{sender:'invoices@medical-billing-services.xyz',replyTo:'',subject:'Invoice #MED-2847 — Outstanding Payment for Patient Services',body:'Please find your outstanding invoice for medical billing services rendered in April 2026.\n\nInvoice #MED-2847\nAmount Due: $8,450.00\nDue Date: May 15, 2026\n\nTo view your itemized invoice and patient billing details, please download the attached document or click the link below:\n\nhttp://1.234.56.78/download/invoice-MED2847.exe\n\nThis invoice contains PHI related to patient billing. Please handle according to HIPAA guidelines.\n\nIf you have questions, contact our billing department immediately.\n\nMedical Billing Services Group'},
+    legitimate:{sender:'it-security@yourhospital.org',replyTo:'',subject:'Monthly IT Security Report — April 2026',body:'Hi Team,\n\nYour monthly IT security summary for April 2026 is now available.\n\nKey highlights:\n- 0 confirmed security incidents\n- 3 phishing emails blocked by email filter\n- Security awareness training completion: 94%\n\nPlease log into the internal portal at https://portal.yourhospital.org to view your full department report.\n\nReminder: Never share your EHR credentials via email. If you receive a suspicious email asking for your EPIC or Cerner password, report it to IT immediately at security@yourhospital.org.\n\nBest regards,\nIT Security Team'},
+    phi:{sender:'research@external-study.pw',replyTo:'data-collection@offshore.ga',subject:'HIPAA Research Study — Urgent Patient Data Request',body:'Dear Provider,\n\nWe are conducting an urgent research study and require patient data for our analysis. We need SSN, date of birth, diagnosis codes, prescription history, and insurance ID for patients seen in the last 6 months.\n\nPlease send the requested PHI and ePHI via email attachment immediately. This is time-sensitive and has been approved by your administration.\n\nPlease act immediately — we need this data by end of day.\n\nResearch Compliance Team'},
+    bec:{sender:'ceo.williams@gmail.com',replyTo:'payments@offshore-holding.ga',subject:'Confidential — Urgent Wire Transfer Required Today',body:'This message is confidential. Do not discuss with anyone.\n\nI am in an executive board meeting and cannot take calls. I need you to process an urgent wire transfer of $95,000 to our new healthcare vendor account today before close of business.\n\nThis is for the new EHR integration contract we are closing. Finance department has been notified.\n\nWire details:\nBank: International Healthcare Holdings\nAccount: 7823-9471-2038\nRouting: 021000089\nAmount: $95,000 USD\n\nProcess immediately. I will call when the board meeting ends.\n\nCEO Williams'}
   };
-  const s = samples[type];
-  document.getElementById('senderEmail').value = s.sender;
-  document.getElementById('replyTo').value = s.replyTo;
-  document.getElementById('subject').value = s.subject;
-  document.getElementById('emailBody').value = s.body;
+  const sample=s[type];
+  document.getElementById('e-sender').value=sample.sender;
+  document.getElementById('e-replyto').value=sample.replyTo;
+  document.getElementById('e-subject').value=sample.subject;
+  document.getElementById('e-body').value=sample.body;
+}
+
+function loadURLSample(type){
+  const s={
+    malware:'http://1.234.56.78/download/ehr-update.exe',
+    phishing:'https://ep1c-mychartsecure-login.verify-account.tk/provider/login',
+    hightld:'https://medicare-cms-billing-update.ml/provider/credentials',
+    safe:'https://www.cms.gov/medicare/billing'
+  };
+  document.getElementById('u-url').value=s[type];
+  document.getElementById('u-context').value='email';
+}
+
+// ── TABS ──
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['email','url','hipaa'][i]===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
 }
 </script>
 </body>
