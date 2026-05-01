@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberShield Email Security Filter</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f6fa;color:#1a1a2e;line-height:1.6}
+  .header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:1.5rem 2rem;display:flex;align-items:center;gap:14px}
+  .header h1{font-size:1.3rem;font-weight:700}
+  .header p{font-size:0.8rem;opacity:0.7;margin-top:2px}
+  .badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:2px 10px;font-size:0.72rem;margin-top:6px;margin-right:4px}
+  .container{max-width:960px;margin:0 auto;padding:1.5rem}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+  .card{background:#fff;border-radius:12px;border:1px solid #e8eaf0;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+  h2{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:0.75rem;display:flex;align-items:center;gap:8px}
+  label{display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:4px;margin-top:12px}
+  label:first-of-type{margin-top:0}
+  input,textarea{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:0.85rem;font-family:inherit;color:#1a1a2e;background:#fff}
+  input:focus,textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+  textarea{resize:vertical;min-height:100px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.2s;width:100%;justify-content:center;margin-top:12px}
+  .btn-primary{background:#2563eb;color:#fff}
+  .btn-primary:hover{background:#1d4ed8}
+  .result-card{border-radius:10px;padding:1rem 1.25rem;margin-top:1rem}
+  .result-safe{background:#f0fdf4;border:1.5px solid #16a34a}
+  .result-danger{background:#fef2f2;border:1.5px solid #dc2626}
+  .result-warning{background:#fffbeb;border:1.5px solid #d97706}
+  .result-title{font-size:1rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .result-safe .result-title{color:#15803d}
+  .result-danger .result-title{color:#b91c1c}
+  .result-warning .result-title{color:#b45309}
+  .finding{font-size:0.8rem;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;gap:8px;align-items:flex-start}
+  .finding:last-child{border-bottom:none}
+  .finding-icon{flex-shrink:0;margin-top:1px}
+  .score-bar{height:8px;border-radius:99px;background:#e5e7eb;margin:8px 0;overflow:hidden}
+  .score-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
+  .score-safe{background:#16a34a}
+  .score-warn{background:#d97706}
+  .score-danger{background:#dc2626}
+  .tag{display:inline-block;font-size:0.72rem;padding:2px 8px;border-radius:99px;font-weight:500;margin:2px}
+  .tag-red{background:#fee2e2;color:#b91c1c}
+  .tag-amber{background:#fef3c7;color:#92400e}
+  .tag-green{background:#dcfce7;color:#166534}
+  .tag-blue{background:#dbeafe;color:#1e40af}
+  .metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+  .metric-sm{background:#f8fafc;border-radius:8px;padding:10px;text-align:center;border:1px solid #e2e8f0}
+  .metric-sm-num{font-size:1.4rem;font-weight:700;color:#2563eb}
+  .metric-sm-num.red{color:#dc2626}
+  .metric-sm-num.green{color:#16a34a}
+  .metric-sm-label{font-size:0.72rem;color:#6b7280;margin-top:2px}
+  .sample-emails{margin-top:0.75rem}
+  .sample-btn{display:block;width:100%;text-align:left;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:6px;cursor:pointer;font-size:0.8rem;color:#374151;font-family:inherit;transition:background 0.15s}
+  .sample-btn:hover{background:#eff6ff;border-color:#bfdbfe}
+  .sample-label{font-size:0.72rem;color:#6b7280;display:block;margin-bottom:3px}
+  .full-width{grid-column:1/-1}
+  .history-item{border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+  .history-verdict{width:60px;font-size:0.72rem;font-weight:700;text-align:center;padding:3px 6px;border-radius:4px;flex-shrink:0}
+  .verdict-safe{background:#dcfce7;color:#166534}
+  .verdict-phish{background:#fee2e2;color:#b91c1c}
+  .verdict-suspicious{background:#fef3c7;color:#92400e}
+  .history-info{flex:1;min-width:0}
+  .history-from{font-size:0.82rem;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history-subject{font-size:0.75rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history-score{font-size:0.75rem;font-weight:600;color:#374151;flex-shrink:0}
+  @media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="font-size:2rem">📧</div>
+  <div>
+    <h1>CyberShield Email Security Filter</h1>
+    <p>Phishing detection, malicious link scanning, and sender domain analysis</p>
+    <div>
+      <span class="badge">Phishing Detection</span>
+      <span class="badge">Malicious URL Scanning</span>
+      <span class="badge">Sender Spoofing Detection</span>
+      <span class="badge">DMARC/SPF Analysis</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="metrics-row">
+    <div class="metric-sm"><div class="metric-sm-num red" id="totalScanned">0</div><div class="metric-sm-label">Emails Analyzed</div></div>
+    <div class="metric-sm"><div class="metric-sm-num red" id="totalPhishing">0</div><div class="metric-sm-label">Phishing Caught</div></div>
+    <div class="metric-sm"><div class="metric-sm-num green" id="totalSafe">0</div><div class="metric-sm-label">Clean Emails</div></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Input Panel -->
+    <div class="card">
+      <h2>📨 Analyze Email</h2>
+
+      <label>Sender Email Address</label>
+      <input type="text" id="senderEmail" placeholder="sender@example.com">
+
+      <label>Reply-To Address (if different)</label>
+      <input type="text" id="replyTo" placeholder="Leave blank if same as sender">
+
+      <label>Subject Line</label>
+      <input type="text" id="subject" placeholder="Email subject">
+
+      <label>Email Body (paste full text)</label>
+      <textarea id="emailBody" placeholder="Paste email body content here..."></textarea>
+
+      <button class="btn btn-primary" onclick="analyzeEmail()">🔍 Analyze Email for Threats</button>
+
+      <div class="sample-emails">
+        <label style="margin-top:14px">Quick test — load a sample email:</label>
+        <button class="sample-btn" onclick="loadSample('phishing')">
+          <span class="sample-label">⚠️ Phishing Example</span>
+          "Your EPIC account has been suspended — verify now"
+        </button>
+        <button class="sample-btn" onclick="loadSample('legitimate')">
+          <span class="sample-label">✅ Legitimate Example</span>
+          "Your monthly report from IT is ready"
+        </button>
+        <button class="sample-btn" onclick="loadSample('spoofed')">
+          <span class="sample-label">🚨 Spoofed Sender Example</span>
+          "CEO requesting urgent wire transfer"
+        </button>
+        <button class="sample-btn" onclick="loadSample('malware')">
+          <span class="sample-label">☠️ Malware Link Example</span>
+          "Invoice attached — please review"
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="card">
+      <h2>🔬 Analysis Results</h2>
+      <div id="resultsPanel">
+        <div style="text-align:center;padding:40px 20px;color:#9ca3af">
+          <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
+          <div style="font-size:0.88rem">Submit an email above to see<br>the threat analysis results</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan History -->
+    <div class="card full-width">
+      <h2>📋 Scan History</h2>
+      <div id="historyPanel">
+        <div style="text-align:center;padding:20px;color:#9ca3af;font-size:0.85rem">No emails analyzed yet</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let scanHistory = [];
+let totalScanned = 0, totalPhishing = 0, totalSafe = 0;
+
+const PHISHING_KEYWORDS = [
+  'verify your account','account suspended','unusual activity','click here immediately',
+  'confirm your identity','your account will be closed','update your information',
+  'security alert','unauthorized access','verify now','act immediately',
+  'your password has expired','you have been selected','claim your prize',
+  'wire transfer','urgent request','ceo','president','wire','bitcoin','gift card',
+  'suspended','locked','disabled','compromised','breach','immediately','asap',
+];
+
+const MALICIOUS_URL_PATTERNS = [
+  /paypa1\.com/i, /rn0rgan\.com/i, /micros0ft\.com/i, /arnazon\.com/i,
+  /.*-epic-verify\./i, /.*mychartsecure\./i, /.*hipaa-update\./i,
+  /.*medicare-alert\./i, /bit\.ly\/[a-z0-9]{5,}/i,
+  /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
+];
+
+const HIGH_RISK_TLDS = ['.tk','.ml','.ga','.cf','.gq','.pw','.top','.xyz','.online','.click'];
+
+const SPOOFING_INDICATORS = [
+  'ceo','president','director','executive','hr department','payroll',
+  'finance department','accounts payable','wire transfer request',
+];
+
+const LEGITIMATE_DOMAINS = [
+  'gmail.com','outlook.com','microsoft.com','google.com','yahoo.com',
+  'apple.com','amazon.com','cisa.gov','hhs.gov','nist.gov','cdc.gov',
+];
+
+function extractUrls(text) {
+  const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
+  return text.match(urlRegex) || [];
+}
+
+function analyzeEmail() {
+  const sender = document.getElementById('senderEmail').value.trim();
+  const replyTo = document.getElementById('replyTo').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const body = document.getElementById('emailBody').value.trim();
+
+  if (!sender && !subject && !body) {
+    alert('Please enter at least a sender email and email body to analyze.');
+    return;
+  }
+
+  const findings = [];
+  let riskScore = 0;
+
+  // 1. Sender domain analysis
+  const senderDomain = sender.includes('@') ? sender.split('@')[1]?.toLowerCase() : '';
+  if (senderDomain) {
+    const tld = '.' + senderDomain.split('.').slice(-1)[0];
+    if (HIGH_RISK_TLDS.includes(tld)) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Sender domain uses high-risk TLD (${tld}) — commonly used in phishing campaigns` });
+      riskScore += 35;
+    }
+    // Typosquatting detection
+    const typosquatPatterns = [/paypa1/i,/rn0rgan/i,/micros0ft/i,/g00gle/i,/arnazon/i,/app1e/i];
+    if (typosquatPatterns.some(p => p.test(senderDomain))) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Typosquatted domain detected: "${senderDomain}" appears to impersonate a legitimate organization` });
+      riskScore += 40;
+    }
+    // Free email used to impersonate corporate
+    const subjectLower = subject.toLowerCase();
+    if (LEGITIMATE_DOMAINS.includes(senderDomain) &&
+        SPOOFING_INDICATORS.some(s => subjectLower.includes(s) || body.toLowerCase().includes(s))) {
+      findings.push({ type: 'warning', icon: '⚠️', text: `Free email provider used with executive impersonation language — possible Business Email Compromise (BEC)` });
+      riskScore += 25;
+    }
+  }
+
+  // 2. Reply-To mismatch
+  if (replyTo && sender) {
+    const senderDom = sender.split('@')[1]?.toLowerCase();
+    const replyDom = replyTo.split('@')[1]?.toLowerCase();
+    if (senderDom && replyDom && senderDom !== replyDom) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Reply-To domain mismatch: sender is "${senderDom}" but replies go to "${replyDom}" — classic phishing indicator` });
+      riskScore += 30;
+    }
+  }
+
+  // 3. Subject line analysis
+  if (subject) {
+    const subLower = subject.toLowerCase();
+    const urgencyWords = ['urgent','immediate','asap','action required','final notice','last chance','expires today','24 hours'];
+    const urgencyFound = urgencyWords.filter(w => subLower.includes(w));
+    if (urgencyFound.length > 0) {
+      findings.push({ type: 'warning', icon: '⚠️', text: `Urgency language in subject line: "${urgencyFound.join('", "')}" — common social engineering tactic` });
+      riskScore += 15;
+    }
+    if (/re:|fwd:|fw:/i.test(subject) && body.length < 200) {
+      findings.push({ type: 'warning', icon: '⚠️', text: `Forwarded/reply format with minimal body — possible thread hijacking attack` });
+      riskScore += 10;
+    }
+  }
+
+  // 4. Body phishing keyword analysis
+  if (body) {
+    const bodyLower = body.toLowerCase();
+    const matchedKeywords = PHISHING_KEYWORDS.filter(k => bodyLower.includes(k));
+    if (matchedKeywords.length >= 3) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Multiple phishing keywords detected: "${matchedKeywords.slice(0,4).join('", "')}"${matchedKeywords.length > 4 ? ` and ${matchedKeywords.length - 4} more` : ''}` });
+      riskScore += Math.min(matchedKeywords.length * 8, 35);
+    } else if (matchedKeywords.length > 0) {
+      findings.push({ type: 'warning', icon: '⚠️', text: `Phishing-related keywords found: "${matchedKeywords.join('", "')}"` });
+      riskScore += matchedKeywords.length * 6;
+    }
+
+    // CEO/executive fraud
+    if (SPOOFING_INDICATORS.slice(0,5).some(s => bodyLower.includes(s))) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Executive impersonation language detected — possible Business Email Compromise (BEC) or wire fraud attempt` });
+      riskScore += 30;
+    }
+
+    // Gift card / payment fraud
+    if (/gift card|itunes|amazon card|google play card/i.test(body)) {
+      findings.push({ type: 'critical', icon: '🚨', text: `Gift card request detected — extremely common in CEO fraud and social engineering attacks` });
+      riskScore += 40;
+    }
+
+    // 5. URL analysis in body
+    const urls = extractUrls(body);
+    if (urls.length > 0) {
+      urls.forEach(url => {
+        if (MALICIOUS_URL_PATTERNS.some(p => p.test(url))) {
+          findings.push({ type: 'critical', icon: '🚨', text: `Malicious URL detected: ${url.substring(0,60)}${url.length > 60 ? '...' : ''}` });
+          riskScore += 45;
+        }
+        try {
+          const urlObj = new URL(url);
+          const tld = '.' + urlObj.hostname.split('.').slice(-1)[0];
+          if (HIGH_RISK_TLDS.includes(tld)) {
+            findings.push({ type: 'critical', icon: '🚨', text: `Link uses high-risk TLD (${tld}): ${urlObj.hostname}` });
+            riskScore += 30;
+          }
+          if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(urlObj.hostname)) {
+            findings.push({ type: 'critical', icon: '🚨', text: `Link uses raw IP address as host: ${urlObj.hostname} — no legitimate site does this` });
+            riskScore += 35;
+          }
+        } catch(e) {}
+      });
+      if (urls.length > 5) {
+        findings.push({ type: 'warning', icon: '⚠️', text: `Excessive number of URLs in email body (${urls.length}) — unusual for legitimate emails` });
+        riskScore += 10;
+      }
+    }
+
+    // 6. Attachment references
+    if (/attached|attachment|\.exe|\.zip|\.js|\.vbs|\.docm|\.xlsm|invoice|receipt/i.test(body)) {
+      findings.push({ type: 'warning', icon: '⚠️', text: `References to attachments detected — verify attachment type before opening (avoid .exe, .zip, .docm, .xlsm)` });
+      riskScore += 12;
+    }
+
+    // 7. Positive indicators
+    if (senderDomain && LEGITIMATE_DOMAINS.includes(senderDomain) && riskScore < 20) {
+      findings.push({ type: 'safe', icon: '✅', text: `Sender domain "${senderDomain}" is a known legitimate domain` });
+    }
+    if (urls.length === 0 && matchedKeywords.length === 0) {
+      findings.push({ type: 'safe', icon: '✅', text: `No suspicious URLs or phishing keywords found in email body` });
+    }
+  }
+
+  // Cap score
+  riskScore = Math.min(riskScore, 100);
+
+  // Determine verdict
+  let verdict, verdictClass, verdictIcon;
+  if (riskScore >= 60) {
+    verdict = 'PHISHING / MALICIOUS'; verdictClass = 'result-danger'; verdictIcon = '🚨';
+    totalPhishing++;
+  } else if (riskScore >= 25) {
+    verdict = 'SUSPICIOUS'; verdictClass = 'result-warning'; verdictIcon = '⚠️';
+    totalPhishing++;
+  } else {
+    verdict = 'LIKELY SAFE'; verdictClass = 'result-safe'; verdictIcon = '✅';
+    totalSafe++;
+  }
+  totalScanned++;
+
+  // Update counters
+  document.getElementById('totalScanned').textContent = totalScanned;
+  document.getElementById('totalPhishing').textContent = totalPhishing;
+  document.getElementById('totalSafe').textContent = totalSafe;
+
+  // Render results
+  const scoreColor = riskScore >= 60 ? 'score-danger' : riskScore >= 25 ? 'score-warn' : 'score-safe';
+  const html = `
+    <div class="result-card ${verdictClass}">
+      <div class="result-title">${verdictIcon} ${verdict}</div>
+      <div style="font-size:0.8rem;margin-bottom:8px;opacity:0.8">Risk Score: ${riskScore}/100</div>
+      <div class="score-bar"><div class="score-fill ${scoreColor}" style="width:${riskScore}%"></div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:8px">Findings (${findings.length})</div>
+      ${findings.length === 0
+        ? '<div style="font-size:0.82rem;color:#16a34a;padding:8px 0">✅ No threats or suspicious indicators found</div>'
+        : findings.map(f => `
+          <div class="finding">
+            <span class="finding-icon">${f.icon}</span>
+            <span style="font-size:0.8rem;color:${f.type==='critical'?'#b91c1c':f.type==='warning'?'#b45309':'#166534'}">${f.text}</span>
+          </div>
+        `).join('')
+      }
+    </div>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:5px">
+      ${riskScore >= 60 ? '<span class="tag tag-red">Do Not Click Any Links</span><span class="tag tag-red">Do Not Open Attachments</span><span class="tag tag-red">Report to IT Security</span>' : ''}
+      ${riskScore >= 25 && riskScore < 60 ? '<span class="tag tag-amber">Verify Sender Directly</span><span class="tag tag-amber">Do Not Reply</span>' : ''}
+      ${riskScore < 25 ? '<span class="tag tag-green">Safe to Proceed</span><span class="tag tag-green">No Action Required</span>' : ''}
+    </div>
+  `;
+  document.getElementById('resultsPanel').innerHTML = html;
+
+  // Add to history
+  const historyItem = {
+    sender: sender || 'Unknown sender',
+    subject: subject || '(No subject)',
+    verdict,
+    verdictClass: riskScore >= 60 ? 'phish' : riskScore >= 25 ? 'suspicious' : 'safe',
+    score: riskScore,
+    time: new Date().toLocaleTimeString()
+  };
+  scanHistory.unshift(historyItem);
+  if (scanHistory.length > 10) scanHistory = scanHistory.slice(0, 10);
+  renderHistory();
+}
+
+function renderHistory() {
+  if (scanHistory.length === 0) {
+    document.getElementById('historyPanel').innerHTML = '<div style="text-align:center;padding:20px;color:#9ca3af;font-size:0.85rem">No emails analyzed yet</div>';
+    return;
+  }
+  document.getElementById('historyPanel').innerHTML = scanHistory.map(h => `
+    <div class="history-item">
+      <div class="history-verdict verdict-${h.verdictClass}">${h.verdictClass.toUpperCase()}</div>
+      <div class="history-info">
+        <div class="history-from">${h.sender}</div>
+        <div class="history-subject">${h.subject}</div>
+      </div>
+      <div class="history-score" style="color:${h.score>=60?'#dc2626':h.score>=25?'#d97706':'#16a34a'}">${h.score}/100</div>
+    </div>
+  `).join('');
+}
+
+function loadSample(type) {
+  const samples = {
+    phishing: {
+      sender: 'security@epicverify-update.tk',
+      replyTo: 'collect@attacker-domain.ru',
+      subject: 'URGENT: Your EPIC EHR Account Has Been Suspended — Verify Immediately',
+      body: 'Dear Healthcare Professional,\n\nWe have detected unusual activity on your EPIC account. Your account has been temporarily suspended due to a security breach.\n\nYou must verify your identity immediately to restore access to patient records.\n\nClick here to verify your account: http://epic-verify-secure.tk/login?id=12345\n\nFailure to verify within 24 hours will result in permanent account closure.\n\nEPIC Security Team'
+    },
+    legitimate: {
+      sender: 'it-support@yourhospital.org',
+      replyTo: '',
+      subject: 'Your Monthly IT Security Report is Ready',
+      body: 'Hi Team,\n\nYour monthly IT security summary report for March 2026 is now available in the IT portal.\n\nPlease log into the internal portal at https://portal.yourhospital.org to review your department summary.\n\nIf you have any questions, please contact the IT helpdesk at extension 4444.\n\nBest regards,\nIT Security Team'
+    },
+    spoofed: {
+      sender: 'ceo.johnson@gmail.com',
+      replyTo: 'payments@offshore-account.ga',
+      subject: 'Urgent Wire Transfer Request — Confidential',
+      body: 'This is urgent and confidential.\n\nI need you to process an immediate wire transfer of $47,500 to our new vendor account. This is time sensitive and must be completed today before end of business.\n\nPlease do not discuss this with anyone else. I am in a board meeting and cannot talk.\n\nWire to:\nBank: International Holdings Ltd\nAccount: 4892-1847-2938\nRouting: 021000089\n\nI will explain everything when I return. This is critical for the deal we are closing.\n\nCEO Johnson'
+    },
+    malware: {
+      sender: 'invoices@accounting-firm.xyz',
+      replyTo: '',
+      subject: 'Invoice #INV-2847 Attached — Payment Due',
+      body: 'Please find attached Invoice #INV-2847 for services rendered in March 2026.\n\nTotal Amount Due: $12,450.00\nDue Date: April 30, 2026\n\nTo view your invoice, please download the attachment or click the link below:\nhttp://1.234.56.78/download/invoice-2847.exe\n\nIf you have questions about this invoice, please contact our billing department.\n\nThank you for your business.\n\nAccounting Department\nFinancial Services Group'
+    }
+  };
+  const s = samples[type];
+  document.getElementById('senderEmail').value = s.sender;
+  document.getElementById('replyTo').value = s.replyTo;
+  document.getElementById('subject').value = s.subject;
+  document.getElementById('emailBody').value = s.body;
+}
+</script>
+</body>
+</html>
